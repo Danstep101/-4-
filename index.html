@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Крестики-нолики</title>
+    <title>Крестики-нолики с умным ботом</title>
     <style>
         body {
             display: flex;
@@ -24,12 +24,17 @@
             padding: 10px 20px;
             font-size: 1rem;
             cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
         .board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
             grid-template-rows: repeat(3, 100px);
             gap: 5px;
+            margin: 20px 0;
         }
         .cell {
             width: 100px;
@@ -39,24 +44,49 @@
             justify-content: center;
             font-size: 2rem;
             background-color: #fff;
-            border: 2px solid #000;
+            border: 2px solid #333;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
-        .cell.X { color: red; }
-        .cell.O { color: blue; }
-        .cell.winner { background-color: #e0f7fa; }
+        .cell:hover {
+            background-color: #f5f5f5;
+        }
+        .cell.X { color: #FF5252; }
+        .cell.O { color: #2196F3; }
+        .cell.winner { background-color: #B2EBF2; }
         .message {
-            margin-top: 20px;
+            margin: 20px 0;
             font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 30px;
         }
         .reset-button {
-            margin-top: 20px;
             padding: 10px 20px;
             font-size: 1rem;
             cursor: pointer;
+            background-color: #607D8B;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
         .hidden {
             display: none;
+        }
+        .difficulty {
+            margin: 15px 0;
+        }
+        .difficulty button {
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background-color: #9E9E9E;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        .difficulty button.active {
+            background-color: #4CAF50;
         }
     </style>
 </head>
@@ -66,10 +96,16 @@
         <p>Выберите режим игры:</p>
         <button id="vsPlayer">Играть против друга</button>
         <button id="vsBot">Играть против бота</button>
+        <div class="difficulty hidden" id="difficulty">
+            <p>Выберите сложность бота:</p>
+            <button data-level="easy">Легкий</button>
+            <button data-level="medium">Средний</button>
+            <button data-level="hard">Непревзойденный</button>
+        </div>
     </div>
 
     <div class="game hidden" id="game">
-        <div class="board">
+        <div class="board" id="board">
             <div class="cell" data-index="0"></div>
             <div class="cell" data-index="1"></div>
             <div class="cell" data-index="2"></div>
@@ -80,23 +116,27 @@
             <div class="cell" data-index="7"></div>
             <div class="cell" data-index="8"></div>
         </div>
-        <div class="message"></div>
-        <button class="reset-button">Сбросить игру</button>
+        <div class="message" id="message"></div>
+        <button class="reset-button" id="resetButton">Новая игра</button>
     </div>
 
     <script>
+        // Элементы DOM
         const menu = document.getElementById('menu');
         const game = document.getElementById('game');
         const vsPlayerButton = document.getElementById('vsPlayer');
         const vsBotButton = document.getElementById('vsBot');
-        const board = document.querySelector('.board');
-        const message = document.querySelector('.message');
-        const resetButton = document.querySelector('.reset-button');
+        const difficultyMenu = document.getElementById('difficulty');
+        const board = document.getElementById('board');
+        const message = document.getElementById('message');
+        const resetButton = document.getElementById('resetButton');
         
+        // Состояние игры
         let currentPlayer = 'X';
         let gameState = Array(9).fill(null);
         let isBotGame = false;
         let botPlayer = 'O';
+        let botDifficulty = 'hard'; // По умолчанию сложный бот
 
         // Выигрышные комбинации
         const winningCombinations = [
@@ -125,19 +165,80 @@
             });
         }
 
-        // Ход бота
+        // Алгоритм минимакс для идеального бота
+        function minimax(board, depth, isMaximizing) {
+            const winner = evaluateBoard(board);
+            
+            if (winner !== null) {
+                return winner === botPlayer ? 10 - depth : depth - 10;
+            }
+            
+            if (isBoardFull(board)) {
+                return 0;
+            }
+            
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === null) {
+                        board[i] = botPlayer;
+                        const score = minimax(board, depth + 1, false);
+                        board[i] = null;
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === null) {
+                        board[i] = currentPlayer === 'X' ? 'O' : 'X';
+                        const score = minimax(board, depth + 1, true);
+                        board[i] = null;
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        // Оценка доски
+        function evaluateBoard(board) {
+            for (const combo of winningCombinations) {
+                const [a, b, c] = combo;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return null;
+        }
+
+        // Проверка на заполненность доски
+        function isBoardFull(board) {
+            return board.every(cell => cell !== null);
+        }
+
+        // Ход бота в зависимости от сложности
         function makeBotMove() {
             if (currentPlayer !== botPlayer || !isBotGame) return;
             
-            // Простой бот: выбирает случайную свободную клетку
-            const emptyCells = gameState.map((cell, index) => cell === null ? index : null)
-                                        .filter(val => val !== null);
+            let botMoveIndex;
             
-            if (emptyCells.length > 0) {
-                const randomIndex = Math.floor(Math.random() * emptyCells.length);
-                const botMoveIndex = emptyCells[randomIndex];
-                
-                // Имитируем задержку для "думающего" бота
+            switch(botDifficulty) {
+                case 'easy':
+                    botMoveIndex = makeEasyBotMove();
+                    break;
+                case 'medium':
+                    botMoveIndex = makeMediumBotMove();
+                    break;
+                case 'hard':
+                    botMoveIndex = makeHardBotMove();
+                    break;
+                default:
+                    botMoveIndex = makeHardBotMove();
+            }
+            
+            if (botMoveIndex !== null) {
                 setTimeout(() => {
                     gameState[botMoveIndex] = botPlayer;
                     const cell = document.querySelector(`.cell[data-index="${botMoveIndex}"]`);
@@ -148,11 +249,79 @@
                     if (winner) {
                         message.textContent = winner === 'Ничья' ? 'Ничья!' : `Победил ${winner}!`;
                     } else {
-                        currentPlayer = 'X';
+                        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
                         message.textContent = `Ходит ${currentPlayer}`;
                     }
                 }, 500);
             }
+        }
+
+        // Легкий бот (случайные ходы)
+        function makeEasyBotMove() {
+            const emptyCells = gameState.map((cell, index) => cell === null ? index : null)
+                                    .filter(val => val !== null);
+            return emptyCells.length > 0 ? 
+                emptyCells[Math.floor(Math.random() * emptyCells.length)] : null;
+        }
+
+        // Средний бот (базовая стратегия)
+        function makeMediumBotMove() {
+            // 1. Попытаться выиграть
+            let move = findWinningMove(botPlayer);
+            if (move !== null) return move;
+            
+            // 2. Блокировать игрока
+            move = findWinningMove(currentPlayer === 'X' ? 'O' : 'X');
+            if (move !== null) return move;
+            
+            // 3. Занять центр
+            if (gameState[4] === null) return 4;
+            
+            // 4. Занять угол
+            const corners = [0, 2, 6, 8];
+            const emptyCorners = corners.filter(index => gameState[index] === null);
+            if (emptyCorners.length > 0) {
+                return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+            }
+            
+            // 5. Случайный ход
+            return makeEasyBotMove();
+        }
+
+        // Сложный бот (минимакс)
+        function makeHardBotMove() {
+            // Используем минимакс для лучшего хода
+            let bestScore = -Infinity;
+            let bestMove = null;
+            
+            for (let i = 0; i < gameState.length; i++) {
+                if (gameState[i] === null) {
+                    gameState[i] = botPlayer;
+                    const score = minimax(gameState, 0, false);
+                    gameState[i] = null;
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            
+            return bestMove;
+        }
+
+        // Поиск выигрышного хода
+        function findWinningMove(player) {
+            for (const combo of winningCombinations) {
+                const [a, b, c] = combo;
+                const cells = [gameState[a], gameState[b], gameState[c]];
+                if (cells.filter(val => val === player).length === 2 && cells.includes(null)) {
+                    if (gameState[a] === null) return a;
+                    if (gameState[b] === null) return b;
+                    if (gameState[c] === null) return c;
+                }
+            }
+            return null;
         }
 
         // Обработка клика
@@ -206,15 +375,31 @@
 
         // Начало игры против бота
         vsBotButton.addEventListener('click', () => {
-            menu.classList.add('hidden');
-            game.classList.remove('hidden');
-            isBotGame = true;
-            botPlayer = Math.random() < 0.5 ? 'X' : 'O'; // Бот случайно выбирает X или O
-            resetGame();
+            difficultyMenu.classList.remove('hidden');
             
-            if (botPlayer === 'X') {
-                makeBotMove();
-            }
+            // Обработчики выбора сложности
+            document.querySelectorAll('.difficulty button').forEach(button => {
+                button.addEventListener('click', () => {
+                    botDifficulty = button.getAttribute('data-level');
+                    
+                    // Подсветка выбранной сложности
+                    document.querySelectorAll('.difficulty button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                    
+                    menu.classList.add('hidden');
+                    difficultyMenu.classList.add('hidden');
+                    game.classList.remove('hidden');
+                    isBotGame = true;
+                    botPlayer = Math.random() < 0.5 ? 'X' : 'O';
+                    resetGame();
+                    
+                    if (botPlayer === 'X') {
+                        makeBotMove();
+                    }
+                });
+            });
         });
 
         // Назначение обработчиков событий
