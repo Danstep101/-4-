@@ -15,6 +15,16 @@
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
         }
+        .menu {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .menu button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
         .board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
@@ -34,7 +44,7 @@
         }
         .cell.X { color: red; }
         .cell.O { color: blue; }
-        .cell.winner { background-color: #e0f7fa; } /* Подсветка выигрышной комбинации */
+        .cell.winner { background-color: #e0f7fa; }
         .message {
             margin-top: 20px;
             font-size: 1.5rem;
@@ -45,29 +55,48 @@
             font-size: 1rem;
             cursor: pointer;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <div class="board">
-        <div class="cell" data-index="0"></div>
-        <div class="cell" data-index="1"></div>
-        <div class="cell" data-index="2"></div>
-        <div class="cell" data-index="3"></div>
-        <div class="cell" data-index="4"></div>
-        <div class="cell" data-index="5"></div>
-        <div class="cell" data-index="6"></div>
-        <div class="cell" data-index="7"></div>
-        <div class="cell" data-index="8"></div>
+    <div class="menu" id="menu">
+        <h1>Крестики-нолики</h1>
+        <p>Выберите режим игры:</p>
+        <button id="vsPlayer">Играть против друга</button>
+        <button id="vsBot">Играть против бота</button>
     </div>
-    <div class="message"></div>
-    <button class="reset-button">Сбросить игру</button>
+
+    <div class="game hidden" id="game">
+        <div class="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        <div class="message"></div>
+        <button class="reset-button">Сбросить игру</button>
+    </div>
 
     <script>
+        const menu = document.getElementById('menu');
+        const game = document.getElementById('game');
+        const vsPlayerButton = document.getElementById('vsPlayer');
+        const vsBotButton = document.getElementById('vsBot');
         const board = document.querySelector('.board');
         const message = document.querySelector('.message');
         const resetButton = document.querySelector('.reset-button');
+        
         let currentPlayer = 'X';
         let gameState = Array(9).fill(null);
+        let isBotGame = false;
+        let botPlayer = 'O';
 
         // Выигрышные комбинации
         const winningCombinations = [
@@ -81,7 +110,7 @@
             for (const combo of winningCombinations) {
                 const [a, b, c] = combo;
                 if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
-                    highlightWinningCells(combo); // Подсветка выигрышной комбинации
+                    highlightWinningCells(combo);
                     return gameState[a];
                 }
             }
@@ -96,8 +125,40 @@
             });
         }
 
+        // Ход бота
+        function makeBotMove() {
+            if (currentPlayer !== botPlayer || !isBotGame) return;
+            
+            // Простой бот: выбирает случайную свободную клетку
+            const emptyCells = gameState.map((cell, index) => cell === null ? index : null)
+                                        .filter(val => val !== null);
+            
+            if (emptyCells.length > 0) {
+                const randomIndex = Math.floor(Math.random() * emptyCells.length);
+                const botMoveIndex = emptyCells[randomIndex];
+                
+                // Имитируем задержку для "думающего" бота
+                setTimeout(() => {
+                    gameState[botMoveIndex] = botPlayer;
+                    const cell = document.querySelector(`.cell[data-index="${botMoveIndex}"]`);
+                    cell.textContent = botPlayer;
+                    cell.classList.add(botPlayer);
+                    
+                    const winner = checkWinner();
+                    if (winner) {
+                        message.textContent = winner === 'Ничья' ? 'Ничья!' : `Победил ${winner}!`;
+                    } else {
+                        currentPlayer = 'X';
+                        message.textContent = `Ходит ${currentPlayer}`;
+                    }
+                }, 500);
+            }
+        }
+
         // Обработка клика
         function handleClick(event) {
+            if (isBotGame && currentPlayer === botPlayer) return;
+            
             const cell = event.target;
             const index = cell.getAttribute('data-index');
 
@@ -113,6 +174,10 @@
             } else {
                 currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
                 message.textContent = `Ходит ${currentPlayer}`;
+                
+                if (isBotGame) {
+                    makeBotMove();
+                }
             }
         }
 
@@ -123,13 +188,38 @@
                 cell.textContent = '';
                 cell.classList.remove('X', 'O', 'winner');
             });
+            currentPlayer = 'X';
             message.textContent = `Ходит ${currentPlayer}`;
+            
+            if (isBotGame && botPlayer === 'X') {
+                makeBotMove();
+            }
         }
+
+        // Начало игры против игрока
+        vsPlayerButton.addEventListener('click', () => {
+            menu.classList.add('hidden');
+            game.classList.remove('hidden');
+            isBotGame = false;
+            resetGame();
+        });
+
+        // Начало игры против бота
+        vsBotButton.addEventListener('click', () => {
+            menu.classList.add('hidden');
+            game.classList.remove('hidden');
+            isBotGame = true;
+            botPlayer = Math.random() < 0.5 ? 'X' : 'O'; // Бот случайно выбирает X или O
+            resetGame();
+            
+            if (botPlayer === 'X') {
+                makeBotMove();
+            }
+        });
 
         // Назначение обработчиков событий
         board.addEventListener('click', handleClick);
         resetButton.addEventListener('click', resetGame);
-        message.textContent = `Ходит ${currentPlayer}`;
     </script>
 </body>
 </html>
