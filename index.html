@@ -6,12 +6,15 @@
     <title>Крестики-Нолики с ботом</title>
     <style>
         :root {
-            --primary-color: #4a6fa5;
-            --secondary-color: #ff6b6b;
-            --bg-color: #f8f9fa;
-            --text-color: #333;
+            --primary-color: #6a8fd8;
+            --secondary-color: #ff7b7b;
+            --bg-color: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-secondary: #a0a0a0;
             --cell-size: min(28vw, 120px);
             --font-main: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --glow-color: rgba(106, 143, 216, 0.4);
         }
 
         * {
@@ -42,11 +45,25 @@
         }
 
         h1 {
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             font-size: clamp(1.8rem, 5vw, 2.5rem);
             color: var(--primary-color);
             text-align: center;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            text-shadow: 0 0 10px var(--glow-color);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            border-radius: 3px;
         }
 
         .menu {
@@ -56,12 +73,91 @@
         }
 
         .menu p {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Стили для новых кнопок */
+        .game-mode-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .game-mode-btn {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3),
+                        inset 0 1px 1px rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .game-mode-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: all 0.5s;
+        }
+
+        .game-mode-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .game-mode-btn:hover::before {
+            left: 100%;
+        }
+
+        .game-mode-btn:active {
+            transform: translateY(0);
+        }
+
+        .game-mode-btn .icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .vs-player-btn {
+            border: 2px solid var(--primary-color);
+        }
+
+        .vs-player-btn .icon {
+            color: var(--primary-color);
+        }
+
+        .vs-bot-btn {
+            border: 2px solid var(--secondary-color);
+        }
+
+        .vs-bot-btn .icon {
+            color: var(--secondary-color);
         }
 
         .btn {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), #4a6fa5);
             color: white;
             border: none;
             border-radius: 50px;
@@ -70,14 +166,32 @@
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(106, 143, 216, 0.3);
             width: 80%;
             max-width: 250px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.3s;
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 20px rgba(106, 143, 216, 0.5);
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:active {
@@ -85,7 +199,12 @@
         }
 
         .btn-secondary {
-            background-color: var(--secondary-color);
+            background: linear-gradient(135deg, var(--secondary-color), #ff6b6b);
+            box-shadow: 0 4px 15px rgba(255, 123, 123, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(255, 123, 123, 0.5);
         }
 
         .game {
@@ -98,7 +217,7 @@
             display: grid;
             grid-template-columns: repeat(3, var(--cell-size));
             grid-template-rows: repeat(3, var(--cell-size));
-            gap: 8px;
+            gap: 10px;
             margin: 20px auto;
             position: relative;
         }
@@ -106,7 +225,7 @@
         .cell {
             width: 100%;
             height: 100%;
-            background-color: white;
+            background-color: var(--bg-secondary);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -115,14 +234,31 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent, rgba(255,255,255,0.03));
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
         .cell:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .cell:hover::before {
+            opacity: 1;
         }
 
         .cell:active {
@@ -131,15 +267,18 @@
 
         .cell.X {
             color: var(--secondary-color);
+            text-shadow: 0 0 10px rgba(255, 123, 123, 0.5);
         }
 
         .cell.O {
             color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(106, 143, 216, 0.5);
         }
 
         .cell.winner {
             animation: pulse 1s infinite;
-            background-color: rgba(74, 111, 165, 0.2);
+            background-color: rgba(106, 143, 216, 0.2);
+            box-shadow: 0 0 15px var(--glow-color);
         }
 
         .message {
@@ -153,6 +292,7 @@
             justify-content: center;
             color: var(--primary-color);
             animation: fadeIn 0.5s;
+            text-shadow: 0 0 5px var(--glow-color);
         }
 
         .controls {
@@ -178,6 +318,11 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--primary-color);
+            transition: transform 0.3s;
+        }
+
+        .settings-btn:hover {
+            transform: rotate(30deg);
         }
 
         .settings-panel {
@@ -186,22 +331,25 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.8);
+            background-color: rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 100;
             display: none;
+            backdrop-filter: blur(5px);
         }
 
         .settings-content {
-            background-color: white;
+            background: linear-gradient(145deg, #1a1a1a, #222);
             padding: 30px;
             border-radius: 15px;
             width: 90%;
             max-width: 400px;
             text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .close-settings {
@@ -210,49 +358,118 @@
             right: 20px;
             font-size: 1.5rem;
             cursor: pointer;
-            color: white;
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+
+        .close-settings:hover {
+            color: var(--primary-color);
         }
 
         .difficulty-options {
             margin: 20px 0;
         }
 
+        .difficulty-options p {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
         .difficulty-btn {
-            background-color: #6c757d;
-            color: white;
+            background-color: #2a2a2a;
+            color: var(--text-color);
             border: none;
             border-radius: 50px;
             padding: 10px 20px;
             margin: 5px;
             cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .difficulty-btn:hover {
+            background-color: #333;
         }
 
         .difficulty-btn.active {
             background-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--glow-color);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); box-shadow: 0 0 10px var(--glow-color); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px var(--glow-color); }
+            100% { transform: scale(1); box-shadow: 0 0 10px var(--glow-color); }
+        }
+
+        /* Анимация фона */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(106, 143, 216, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 123, 123, 0.1) 0%, transparent 40%);
+            z-index: -1;
+            animation: bgPulse 15s infinite alternate;
+        }
+
+        @keyframes bgPulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.3; }
+        }
+
+        /* Эффект частиц */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            to { transform: translateY(-100vh) translateX(20px); }
         }
     </style>
 </head>
 <body>
+    <div class="particles" id="particles"></div>
+
     <div class="container">
         <h1>Крестики-Нолики</h1>
-        
+
         <div class="menu" id="menu">
             <p>Выберите режим игры:</p>
-            <button class="btn" id="vsPlayer">Играть вдвоём</button>
-            <button class="btn" id="vsBot">Играть с ботом</button>
+            <div class="game-mode-buttons">
+                <button class="game-mode-btn vs-player-btn" id="vsPlayer">
+                    <span class="icon">👥</span>
+                    <span>Играть вдвоём</span>
+                </button>
+                <button class="game-mode-btn vs-bot-btn" id="vsBot">
+                    <span class="icon">🤖</span>
+                    <span>Играть с ботом</span>
+                </button>
+            </div>
         </div>
-        
+
         <div class="game" id="game">
             <button class="settings-btn" id="settingsButton">⚙️</button>
             <div class="board" id="board">
@@ -290,6 +507,33 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Создание частиц
+            function createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = window.innerWidth < 768 ? 20 : 50;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+
+                    const size = Math.random() * 3 + 1;
+                    const posX = Math.random() * 100;
+                    const duration = Math.random() * 20 + 10;
+                    const delay = Math.random() * -20;
+
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${posX}%`;
+                    particle.style.opacity = Math.random() * 0.5 + 0.1;
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.animationDelay = `${delay}s`;
+
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            createParticles();
+
             // Элементы DOM
             const menu = document.getElementById('menu');
             const game = document.getElementById('game');
@@ -303,7 +547,7 @@
             const settingsPanel = document.getElementById('settingsPanel');
             const closeSettings = document.getElementById('closeSettings');
             const saveSettings = document.getElementById('saveSettings');
-            
+
             // Состояние игры
             let currentPlayer = 'X';
             let gameState = Array(9).fill(null);
@@ -342,9 +586,9 @@
             // Ход бота
             function makeBotMove() {
                 if (currentPlayer !== botPlayer || !isBotGame) return;
-                
+
                 let botMoveIndex;
-                
+
                 switch(botDifficulty) {
                     case 'easy':
                         botMoveIndex = makeEasyBotMove();
@@ -356,7 +600,7 @@
                     default:
                         botMoveIndex = makeMediumBotMove();
                 }
-                
+
                 if (botMoveIndex !== null) {
                     setTimeout(() => {
                         makeMove(botMoveIndex);
@@ -368,7 +612,7 @@
             function makeEasyBotMove() {
                 const emptyCells = gameState.map((cell, index) => cell === null ? index : null)
                                         .filter(val => val !== null);
-                return emptyCells.length > 0 ? 
+                return emptyCells.length > 0 ?
                     emptyCells[Math.floor(Math.random() * emptyCells.length)] : null;
             }
 
@@ -377,21 +621,21 @@
                 // 1. Попытаться выиграть
                 let move = findWinningMove(botPlayer);
                 if (move !== null) return move;
-                
+
                 // 2. Блокировать игрока
                 move = findWinningMove(currentPlayer === 'X' ? 'O' : 'X');
                 if (move !== null) return move;
-                
+
                 // 3. Занять центр
                 if (gameState[4] === null) return 4;
-                
+
                 // 4. Занять угол
                 const corners = [0, 2, 6, 8];
                 const emptyCorners = corners.filter(index => gameState[index] === null);
                 if (emptyCorners.length > 0) {
                     return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
                 }
-                
+
                 // 5. Случайный ход
                 return makeEasyBotMove();
             }
@@ -400,31 +644,31 @@
             function makeHardBotMove() {
                 let bestScore = -Infinity;
                 let bestMove = null;
-                
+
                 for (let i = 0; i < gameState.length; i++) {
                     if (gameState[i] === null) {
                         gameState[i] = botPlayer;
                         const score = minimax(gameState, 0, false);
                         gameState[i] = null;
-                        
+
                         if (score > bestScore) {
                             bestScore = score;
                             bestMove = i;
                         }
                     }
                 }
-                
+
                 return bestMove;
             }
 
             // Алгоритм минимакс
             function minimax(board, depth, isMaximizing) {
                 const winner = evaluateBoard(board);
-                
+
                 if (winner === botPlayer) return 10 - depth;
                 if (winner && winner !== 'draw') return depth - 10;
                 if (winner === 'draw') return 0;
-                
+
                 if (isMaximizing) {
                     let bestScore = -Infinity;
                     for (let i = 0; i < board.length; i++) {
@@ -483,13 +727,13 @@
             // Сделать ход
             function makeMove(index) {
                 const cell = document.querySelector(`.cell[data-index="${index}"]`);
-                
+
                 if (gameState[index] !== null) return;
-                
+
                 gameState[index] = currentPlayer;
                 cell.textContent = currentPlayer;
                 cell.classList.add(currentPlayer);
-                
+
                 const winner = checkWinner();
                 if (winner) {
                     if (winner === 'draw') {
@@ -500,7 +744,7 @@
                 } else {
                     currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
                     message.textContent = `Ходит ${currentPlayer}`;
-                    
+
                     if (isBotGame) {
                         makeBotMove();
                     }
@@ -514,10 +758,10 @@
                     cell.textContent = '';
                     cell.className = 'cell';
                 });
-                
+
                 currentPlayer = 'X';
                 message.textContent = `Ходит ${currentPlayer}`;
-                
+
                 if (isBotGame && botPlayer === 'X') {
                     makeBotMove();
                 }
@@ -527,7 +771,7 @@
             function startGame(againstBot = false) {
                 isBotGame = againstBot;
                 botPlayer = Math.random() < 0.5 ? 'X' : 'O';
-                
+
                 menu.style.display = 'none';
                 game.style.display = 'block';
                 resetGame();
@@ -542,7 +786,7 @@
             // Открыть настройки
             function openSettings() {
                 settingsPanel.style.display = 'flex';
-                
+
                 // Установить активную кнопку текущей сложности
                 document.querySelectorAll('.difficulty-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -584,7 +828,7 @@
             settingsButton.addEventListener('click', openSettings);
             closeSettings.addEventListener('click', closeSettingsPanel);
             saveSettings.addEventListener('click', saveSettingsHandler);
-            
+
             // Обработчики выбора сложности
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
