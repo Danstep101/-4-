@@ -15,12 +15,17 @@
             --cell-size: min(28vw, 120px);
             --font-main: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --glow-color: rgba(106, 143, 216, 0.4);
+            --glow-color-secondary: rgba(255, 123, 123, 0.4);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        html {
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -45,25 +50,11 @@
         }
 
         h1 {
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             font-size: clamp(1.8rem, 5vw, 2.5rem);
             color: var(--primary-color);
             text-align: center;
             text-shadow: 0 0 10px var(--glow-color);
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-            border-radius: 3px;
         }
 
         .menu {
@@ -73,12 +64,11 @@
         }
 
         .menu p {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             font-size: 1.1rem;
             color: var(--text-secondary);
         }
 
-        /* Стили для новых кнопок */
         .game-mode-buttons {
             display: flex;
             flex-direction: column;
@@ -102,8 +92,7 @@
             cursor: pointer;
             overflow: hidden;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3),
-                        inset 0 1px 1px rgba(255,255,255,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -111,24 +100,9 @@
             padding: 0 20px;
         }
 
-        .game-mode-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: all 0.5s;
-        }
-
         .game-mode-btn:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-        }
-
-        .game-mode-btn:hover::before {
-            left: 100%;
         }
 
         .game-mode-btn:active {
@@ -140,21 +114,10 @@
             margin-bottom: 8px;
         }
 
-        .vs-player-btn {
-            border: 2px solid var(--primary-color);
-        }
-
-        .vs-player-btn .icon {
-            color: var(--primary-color);
-        }
-
-        .vs-bot-btn {
-            border: 2px solid var(--secondary-color);
-        }
-
-        .vs-bot-btn .icon {
-            color: var(--secondary-color);
-        }
+        .vs-player-btn { border: 2px solid var(--primary-color); }
+        .vs-player-btn .icon { color: var(--primary-color); }
+        .vs-bot-btn { border: 2px solid var(--secondary-color); }
+        .vs-bot-btn .icon { color: var(--secondary-color); }
 
         .btn {
             background: linear-gradient(135deg, var(--primary-color), #4a6fa5);
@@ -167,31 +130,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(106, 143, 216, 0.3);
-            width: 80%;
-            max-width: 250px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.3s;
         }
 
         .btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(106, 143, 216, 0.5);
-        }
-
-        .btn:hover::before {
-            left: 100%;
         }
 
         .btn:active {
@@ -202,16 +145,41 @@
             background: linear-gradient(135deg, var(--secondary-color), #ff6b6b);
             box-shadow: 0 4px 15px rgba(255, 123, 123, 0.3);
         }
-
         .btn-secondary:hover {
             box-shadow: 0 6px 20px rgba(255, 123, 123, 0.5);
         }
 
-        .game {
-            display: none;
+        .game { display: none; width: 100%; animation: fadeIn 0.5s ease-out; }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             width: 100%;
-            animation: fadeIn 0.5s ease-out;
+            max-width: calc(3 * var(--cell-size) + 20px);
+            margin: 0 auto;
         }
+
+        .score-board {
+            display: flex;
+            gap: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score-x { color: var(--secondary-color); text-shadow: 0 0 5px var(--glow-color-secondary); }
+        .score-o { color: var(--primary-color); text-shadow: 0 0 5px var(--glow-color); }
+        .score-draw { color: var(--text-secondary); }
+
+        .settings-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: transform 0.3s;
+        }
+        .settings-btn:hover { transform: rotate(30deg); }
 
         .board {
             display: grid;
@@ -221,6 +189,7 @@
             margin: 20px auto;
             position: relative;
         }
+        .board.locked { pointer-events: none; }
 
         .cell {
             width: 100%;
@@ -235,51 +204,22 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
             border: 1px solid rgba(255,255,255,0.05);
         }
-
-        .cell::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, transparent, rgba(255,255,255,0.03));
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
         .cell:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
+        .cell:active { transform: translateY(1px); }
 
-        .cell:hover::before {
-            opacity: 1;
-        }
-
-        .cell:active {
-            transform: translateY(1px);
-        }
-
-        .cell.X {
-            color: var(--secondary-color);
-            text-shadow: 0 0 10px rgba(255, 123, 123, 0.5);
-        }
-
-        .cell.O {
-            color: var(--primary-color);
-            text-shadow: 0 0 10px rgba(106, 143, 216, 0.5);
-        }
+        .cell.X { color: var(--secondary-color); text-shadow: 0 0 10px var(--glow-color-secondary); }
+        .cell.O { color: var(--primary-color); text-shadow: 0 0 10px var(--glow-color); }
 
         .cell.winner {
             animation: pulse 1s infinite;
-            background-color: rgba(106, 143, 216, 0.2);
-            box-shadow: 0 0 15px var(--glow-color);
         }
+        .cell.winner.O { background-color: rgba(106, 143, 216, 0.2); box-shadow: 0 0 15px var(--glow-color); }
+        .cell.winner.X { background-color: rgba(255, 123, 123, 0.2); box-shadow: 0 0 15px var(--glow-color-secondary); }
 
         .message {
             margin: 15px 0;
@@ -292,7 +232,6 @@
             justify-content: center;
             color: var(--primary-color);
             animation: fadeIn 0.5s;
-            text-shadow: 0 0 5px var(--glow-color);
         }
 
         .controls {
@@ -302,161 +241,60 @@
             margin-top: 15px;
             width: 100%;
         }
-
-        .controls .btn {
-            width: auto;
-            padding: 10px 20px;
-            margin: 0;
-        }
-
-        .settings-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--primary-color);
-            transition: transform 0.3s;
-        }
-
-        .settings-btn:hover {
-            transform: rotate(30deg);
-        }
+        .controls .btn { width: auto; padding: 10px 20px; margin: 0; }
 
         .settings-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            display: none;
-            backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(5px);
         }
-
         .settings-content {
             background: linear-gradient(145deg, #1a1a1a, #222);
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 30px; border-radius: 15px; width: 90%; max-width: 400px;
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.1);
         }
 
         .close-settings {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: color 0.3s;
+            position: absolute; top: 20px; right: 20px; font-size: 1.5rem;
+            cursor: pointer; color: var(--text-secondary); transition: color 0.3s;
         }
+        .close-settings:hover { color: var(--primary-color); }
 
-        .close-settings:hover {
-            color: var(--primary-color);
+        .settings-section { margin: 20px 0; }
+        .settings-section p { color: var(--text-secondary); margin-bottom: 10px; }
+        .toggle-buttons { display: flex; justify-content: center; }
+
+        .toggle-btn {
+            background-color: #2a2a2a; color: var(--text-color); border: none;
+            border-radius: 50px; padding: 10px 20px; margin: 5px; cursor: pointer;
+            transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1);
         }
-
-        .difficulty-options {
-            margin: 20px 0;
-        }
-
-        .difficulty-options p {
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .difficulty-btn {
-            background-color: #2a2a2a;
-            color: var(--text-color);
-            border: none;
-            border-radius: 50px;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .difficulty-btn:hover {
-            background-color: #333;
-        }
-
-        .difficulty-btn.active {
+        .toggle-btn:hover { background-color: #333; }
+        .toggle-btn.active {
             background-color: var(--primary-color);
             box-shadow: 0 0 10px var(--glow-color);
         }
 
+        /* Анимации */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 10px var(--glow-color); }
-            50% { transform: scale(1.05); box-shadow: 0 0 20px var(--glow-color); }
-            100% { transform: scale(1); box-shadow: 0 0 10px var(--glow-color); }
-        }
-
-        /* Анимация фона */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(106, 143, 216, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at 80% 70%, rgba(255, 123, 123, 0.1) 0%, transparent 40%);
-            z-index: -1;
-            animation: bgPulse 15s infinite alternate;
-        }
-
-        @keyframes bgPulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 0.5; }
-            100% { opacity: 0.3; }
-        }
-
-        /* Эффект частиц */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            background: rgba(255,255,255,0.5);
-            border-radius: 50%;
-            animation: float linear infinite;
-        }
-
-        @keyframes float {
-            to { transform: translateY(-100vh) translateX(20px); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
 
-    <div class="container">
+    <main class="container">
         <h1>Крестики-Нолики</h1>
 
-        <div class="menu" id="menu">
+        <section class="menu" id="menu">
             <p>Выберите режим игры:</p>
             <div class="game-mode-buttons">
                 <button class="game-mode-btn vs-player-btn" id="vsPlayer">
@@ -468,375 +306,416 @@
                     <span>Играть с ботом</span>
                 </button>
             </div>
-        </div>
+        </section>
 
-        <div class="game" id="game">
-            <button class="settings-btn" id="settingsButton">⚙️</button>
+        <section class="game" id="game">
+            <header class="game-header">
+                <div class="score-board">
+                    <span id="scoreX" class="score-x">X: 0</span>
+                    <span id="scoreDraw" class="score-draw">Ничья: 0</span>
+                    <span id="scoreO" class="score-o">O: 0</span>
+                </div>
+                <button class="settings-btn" id="settingsButton">⚙️</button>
+            </header>
             <div class="board" id="board">
-                <div class="cell" data-index="0"></div>
-                <div class="cell" data-index="1"></div>
-                <div class="cell" data-index="2"></div>
-                <div class="cell" data-index="3"></div>
-                <div class="cell" data-index="4"></div>
-                <div class="cell" data-index="5"></div>
-                <div class="cell" data-index="6"></div>
-                <div class="cell" data-index="7"></div>
-                <div class="cell" data-index="8"></div>
-            </div>
+                </div>
             <div class="message" id="message"></div>
             <div class="controls">
-                <button class="btn" id="resetButton">Новая игра</button>
+                <button class="btn" id="resetButton">Ещё раз</button>
                 <button class="btn btn-secondary" id="menuButton">Меню</button>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <div class="settings-panel" id="settingsPanel">
-        <span class="close-settings" id="closeSettings">×</span>
         <div class="settings-content">
+            <span class="close-settings" id="closeSettings">×</span>
             <h2>Настройки</h2>
-            <div class="difficulty-options">
-                <p>Сложность бота:</p>
-                <button class="difficulty-btn" data-level="easy">Легкий</button>
-                <button class="difficulty-btn active" data-level="medium">Средний</button>
-                <button class="difficulty-btn" data-level="hard">Сложный</button>
+            <div class="settings-section">
+                <p>Ваш символ:</p>
+                <div class="toggle-buttons">
+                    <button class="toggle-btn" data-symbol="X">X</button>
+                    <button class="toggle-btn" data-symbol="O">O</button>
+                </div>
             </div>
-            <button class="btn" id="saveSettings" style="margin-top: 20px;">Сохранить</button>
+            <div class="settings-section" id="difficultySection">
+                <p>Сложность бота:</p>
+                <div class="toggle-buttons">
+                    <button class="toggle-btn" data-level="easy">Легкий</button>
+                    <button class="toggle-btn" data-level="medium">Средний</button>
+                    <button class="toggle-btn" data-level="hard">Сложный</button>
+                </div>
+            </div>
+            <button class="btn" id="saveSettings" style="margin-top: 20px;">Применить</button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Создание частиц
-            function createParticles() {
-                const particlesContainer = document.getElementById('particles');
-                const particleCount = window.innerWidth < 768 ? 20 : 50;
+    document.addEventListener('DOMContentLoaded', () => {
+        const TicTacToe = {
+            // --- Элементы DOM ---
+            elements: {
+                menu: document.getElementById('menu'),
+                game: document.getElementById('game'),
+                board: document.getElementById('board'),
+                message: document.getElementById('message'),
+                scoreX: document.getElementById('scoreX'),
+                scoreO: document.getElementById('scoreO'),
+                scoreDraw: document.getElementById('scoreDraw'),
+                settingsPanel: document.getElementById('settingsPanel'),
+                difficultySection: document.getElementById('difficultySection'),
+                // Кнопки
+                vsPlayerBtn: document.getElementById('vsPlayer'),
+                vsBotBtn: document.getElementById('vsBot'),
+                resetBtn: document.getElementById('resetButton'),
+                menuBtn: document.getElementById('menuButton'),
+                settingsBtn: document.getElementById('settingsButton'),
+                closeSettingsBtn: document.getElementById('closeSettings'),
+                saveSettingsBtn: document.getElementById('saveSettings'),
+            },
 
-                for (let i = 0; i < particleCount; i++) {
-                    const particle = document.createElement('div');
-                    particle.classList.add('particle');
+            // --- Состояние игры ---
+            state: {
+                board: Array(9).fill(null),
+                currentPlayer: 'X',
+                isGameOver: false,
+                mode: 'player', // 'player' or 'bot'
+                scores: { X: 0, O: 0, draw: 0 },
+                // Настройки
+                humanPlayer: 'X',
+                botPlayer: 'O',
+                botDifficulty: 'medium',
+            },
 
-                    const size = Math.random() * 3 + 1;
-                    const posX = Math.random() * 100;
-                    const duration = Math.random() * 20 + 10;
-                    const delay = Math.random() * -20;
+            // --- Константы ---
+            WINNING_COMBINATIONS: [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ],
 
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.left = `${posX}%`;
-                    particle.style.opacity = Math.random() * 0.5 + 0.1;
-                    particle.style.animationDuration = `${duration}s`;
-                    particle.style.animationDelay = `${delay}s`;
+            // --- Инициализация ---
+            init() {
+                this.generateBoard();
+                this.addEventListeners();
+                this.updateScoreboard();
+            },
 
-                    particlesContainer.appendChild(particle);
+            generateBoard() {
+                this.elements.board.innerHTML = '';
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.index = i;
+                    this.elements.board.appendChild(cell);
                 }
-            }
+            },
 
-            createParticles();
+            // --- Обработчики событий ---
+            addEventListeners() {
+                const { elements } = this;
+                elements.vsPlayerBtn.addEventListener('click', () => this.startGame('player'));
+                elements.vsBotBtn.addEventListener('click', () => this.startGame('bot'));
+                elements.board.addEventListener('click', this.handleCellClick.bind(this));
+                elements.resetBtn.addEventListener('click', this.resetGame.bind(this));
+                elements.menuBtn.addEventListener('click', this.returnToMenu.bind(this));
+                elements.settingsBtn.addEventListener('click', this.openSettings.bind(this));
+                elements.closeSettingsBtn.addEventListener('click', this.closeSettings.bind(this));
+                elements.saveSettingsBtn.addEventListener('click', this.saveSettings.bind(this));
 
-            // Элементы DOM
-            const menu = document.getElementById('menu');
-            const game = document.getElementById('game');
-            const vsPlayerButton = document.getElementById('vsPlayer');
-            const vsBotButton = document.getElementById('vsBot');
-            const board = document.getElementById('board');
-            const message = document.getElementById('message');
-            const resetButton = document.getElementById('resetButton');
-            const menuButton = document.getElementById('menuButton');
-            const settingsButton = document.getElementById('settingsButton');
-            const settingsPanel = document.getElementById('settingsPanel');
-            const closeSettings = document.getElementById('closeSettings');
-            const saveSettings = document.getElementById('saveSettings');
-
-            // Состояние игры
-            let currentPlayer = 'X';
-            let gameState = Array(9).fill(null);
-            let isBotGame = false;
-            let botPlayer = 'O';
-            let botDifficulty = 'medium';
-            let gameHistory = [];
-
-            // Выигрышные комбинации
-            const winningCombinations = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // строки
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // столбцы
-                [0, 4, 8], [2, 4, 6]             // диагонали
-            ];
-
-            // Проверка победы
-            function checkWinner() {
-                for (const combo of winningCombinations) {
-                    const [a, b, c] = combo;
-                    if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
-                        highlightWinningCells(combo);
-                        return gameState[a];
+                elements.settingsPanel.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('toggle-btn')) {
+                        const parent = e.target.parentElement;
+                        parent.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+                        e.target.classList.add('active');
                     }
-                }
-                if (!gameState.includes(null)) return 'draw';
-                return null;
-            }
-
-            // Подсветка выигрышной комбинации
-            function highlightWinningCells(combo) {
-                combo.forEach(index => {
-                    document.querySelector(`.cell[data-index="${index}"]`).classList.add('winner');
                 });
-            }
+            },
 
-            // Ход бота
-            function makeBotMove() {
-                if (currentPlayer !== botPlayer || !isBotGame) return;
+            // --- Управление игрой ---
+            startGame(mode) {
+                this.state.mode = mode;
+                this.elements.menu.style.display = 'none';
+                this.elements.game.style.display = 'block';
+                this.resetGame();
+            },
 
-                let botMoveIndex;
+            resetGame() {
+                this.state.board.fill(null);
+                this.state.isGameOver = false;
+                this.state.currentPlayer = 'X';
 
-                switch(botDifficulty) {
-                    case 'easy':
-                        botMoveIndex = makeEasyBotMove();
-                        break;
-                    case 'hard':
-                        botMoveIndex = makeHardBotMove();
-                        break;
-                    case 'medium':
-                    default:
-                        botMoveIndex = makeMediumBotMove();
-                }
-
-                if (botMoveIndex !== null) {
-                    setTimeout(() => {
-                        makeMove(botMoveIndex);
-                    }, 500);
-                }
-            }
-
-            // Легкий бот (случайные ходы)
-            function makeEasyBotMove() {
-                const emptyCells = gameState.map((cell, index) => cell === null ? index : null)
-                                        .filter(val => val !== null);
-                return emptyCells.length > 0 ?
-                    emptyCells[Math.floor(Math.random() * emptyCells.length)] : null;
-            }
-
-            // Средний бот (базовая стратегия)
-            function makeMediumBotMove() {
-                // 1. Попытаться выиграть
-                let move = findWinningMove(botPlayer);
-                if (move !== null) return move;
-
-                // 2. Блокировать игрока
-                move = findWinningMove(currentPlayer === 'X' ? 'O' : 'X');
-                if (move !== null) return move;
-
-                // 3. Занять центр
-                if (gameState[4] === null) return 4;
-
-                // 4. Занять угол
-                const corners = [0, 2, 6, 8];
-                const emptyCorners = corners.filter(index => gameState[index] === null);
-                if (emptyCorners.length > 0) {
-                    return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
-                }
-
-                // 5. Случайный ход
-                return makeEasyBotMove();
-            }
-
-            // Сложный бот (минимакс)
-            function makeHardBotMove() {
-                let bestScore = -Infinity;
-                let bestMove = null;
-
-                for (let i = 0; i < gameState.length; i++) {
-                    if (gameState[i] === null) {
-                        gameState[i] = botPlayer;
-                        const score = minimax(gameState, 0, false);
-                        gameState[i] = null;
-
-                        if (score > bestScore) {
-                            bestScore = score;
-                            bestMove = i;
-                        }
-                    }
-                }
-
-                return bestMove;
-            }
-
-            // Алгоритм минимакс
-            function minimax(board, depth, isMaximizing) {
-                const winner = evaluateBoard(board);
-
-                if (winner === botPlayer) return 10 - depth;
-                if (winner && winner !== 'draw') return depth - 10;
-                if (winner === 'draw') return 0;
-
-                if (isMaximizing) {
-                    let bestScore = -Infinity;
-                    for (let i = 0; i < board.length; i++) {
-                        if (board[i] === null) {
-                            board[i] = botPlayer;
-                            const score = minimax(board, depth + 1, false);
-                            board[i] = null;
-                            bestScore = Math.max(score, bestScore);
-                        }
-                    }
-                    return bestScore;
-                } else {
-                    let bestScore = Infinity;
-                    for (let i = 0; i < board.length; i++) {
-                        if (board[i] === null) {
-                            board[i] = currentPlayer === 'X' ? 'O' : 'X';
-                            const score = minimax(board, depth + 1, true);
-                            board[i] = null;
-                            bestScore = Math.min(score, bestScore);
-                        }
-                    }
-                    return bestScore;
-                }
-            }
-
-            // Оценка доски
-            function evaluateBoard(board) {
-                for (const combo of winningCombinations) {
-                    const [a, b, c] = combo;
-                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                        return board[a];
-                    }
-                }
-                return isBoardFull(board) ? 'draw' : null;
-            }
-
-            // Проверка на заполненность доски
-            function isBoardFull(board) {
-                return board.every(cell => cell !== null);
-            }
-
-            // Поиск выигрышного хода
-            function findWinningMove(player) {
-                for (const combo of winningCombinations) {
-                    const [a, b, c] = combo;
-                    const cells = [gameState[a], gameState[b], gameState[c]];
-                    if (cells.filter(val => val === player).length === 2 && cells.includes(null)) {
-                        if (gameState[a] === null) return a;
-                        if (gameState[b] === null) return b;
-                        if (gameState[c] === null) return c;
-                    }
-                }
-                return null;
-            }
-
-            // Сделать ход
-            function makeMove(index) {
-                const cell = document.querySelector(`.cell[data-index="${index}"]`);
-
-                if (gameState[index] !== null) return;
-
-                gameState[index] = currentPlayer;
-                cell.textContent = currentPlayer;
-                cell.classList.add(currentPlayer);
-
-                const winner = checkWinner();
-                if (winner) {
-                    if (winner === 'draw') {
-                        message.textContent = 'Ничья!';
-                    } else {
-                        message.textContent = `Победили ${winner}!`;
-                    }
-                } else {
-                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-                    message.textContent = `Ходит ${currentPlayer}`;
-
-                    if (isBotGame) {
-                        makeBotMove();
-                    }
-                }
-            }
-
-            // Сброс игры
-            function resetGame() {
-                gameState = Array(9).fill(null);
                 document.querySelectorAll('.cell').forEach(cell => {
                     cell.textContent = '';
                     cell.className = 'cell';
                 });
 
-                currentPlayer = 'X';
-                message.textContent = `Ходит ${currentPlayer}`;
+                this.elements.board.classList.remove('locked');
+                this.updateMessage(`Ходит ${this.state.currentPlayer}`);
 
-                if (isBotGame && botPlayer === 'X') {
-                    makeBotMove();
+                if (this.state.mode === 'bot' && this.state.currentPlayer === this.state.botPlayer) {
+                    this.makeBotMove();
                 }
-            }
+            },
 
-            // Начать новую игру
-            function startGame(againstBot = false) {
-                isBotGame = againstBot;
-                botPlayer = Math.random() < 0.5 ? 'X' : 'O';
+            returnToMenu() {
+                this.elements.menu.style.display = 'block';
+                this.elements.game.style.display = 'none';
+            },
 
-                menu.style.display = 'none';
-                game.style.display = 'block';
-                resetGame();
-            }
-
-            // Вернуться в меню
-            function returnToMenu() {
-                menu.style.display = 'block';
-                game.style.display = 'none';
-            }
-
-            // Открыть настройки
-            function openSettings() {
-                settingsPanel.style.display = 'flex';
-
-                // Установить активную кнопку текущей сложности
-                document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.level === botDifficulty) {
-                        btn.classList.add('active');
-                    }
-                });
-            }
-
-            // Закрыть настройки
-            function closeSettingsPanel() {
-                settingsPanel.style.display = 'none';
-            }
-
-            // Сохранить настройки
-            function saveSettingsHandler() {
-                const activeBtn = document.querySelector('.difficulty-btn.active');
-                if (activeBtn) {
-                    botDifficulty = activeBtn.dataset.level;
-                }
-                closeSettingsPanel();
-                resetGame();
-            }
-
-            // Назначение обработчиков событий
-            vsPlayerButton.addEventListener('click', () => startGame(false));
-            vsBotButton.addEventListener('click', () => startGame(true));
-            board.addEventListener('click', (e) => {
+            handleCellClick(e) {
                 const cell = e.target.closest('.cell');
-                if (cell) {
-                    const index = cell.getAttribute('data-index');
-                    if (!isBotGame || currentPlayer !== botPlayer) {
-                        makeMove(index);
+                if (!cell || this.state.isGameOver) return;
+
+                const index = parseInt(cell.dataset.index, 10);
+                if (this.state.board[index] !== null) return;
+
+                if (this.state.mode === 'bot' && this.state.currentPlayer === this.state.botPlayer) {
+                    return; // Блокируем ход человека, пока думает бот
+                }
+
+                this.makeMove(index);
+            },
+
+            makeMove(index) {
+                if (this.state.board[index] !== null || this.state.isGameOver) return;
+
+                this.state.board[index] = this.state.currentPlayer;
+                const cell = this.elements.board.children[index];
+                cell.textContent = this.state.currentPlayer;
+                cell.classList.add(this.state.currentPlayer);
+
+                const winner = this.checkWinner();
+                if (winner) {
+                    this.endGame(winner);
+                } else {
+                    this.switchPlayer();
+                }
+            },
+
+            switchPlayer() {
+                this.state.currentPlayer = this.state.currentPlayer === 'X' ? 'O' : 'X';
+                this.updateMessage(`Ходит ${this.state.currentPlayer}`);
+
+                if (this.state.mode === 'bot' && this.state.currentPlayer === this.state.botPlayer) {
+                    this.makeBotMove();
+                }
+            },
+
+            checkWinner() {
+                for (const combo of this.WINNING_COMBINATIONS) {
+                    const [a, b, c] = combo;
+                    if (this.state.board[a] && this.state.board[a] === this.state.board[b] && this.state.board[a] === this.state.board[c]) {
+                        return { winner: this.state.board[a], combo };
                     }
                 }
-            });
-            resetButton.addEventListener('click', resetGame);
-            menuButton.addEventListener('click', returnToMenu);
-            settingsButton.addEventListener('click', openSettings);
-            closeSettings.addEventListener('click', closeSettingsPanel);
-            saveSettings.addEventListener('click', saveSettingsHandler);
+                if (!this.state.board.includes(null)) return { winner: 'draw' };
+                return null;
+            },
 
-            // Обработчики выбора сложности
-            document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+            endGame(result) {
+                this.state.isGameOver = true;
+                this.elements.board.classList.add('locked');
+
+                if (result.winner === 'draw') {
+                    this.updateMessage('Ничья!');
+                    this.state.scores.draw++;
+                } else {
+                    this.updateMessage(`Победили ${result.winner}!`);
+                    this.state.scores[result.winner]++;
+                    this.highlightWinningCells(result.combo, result.winner);
+                }
+                this.updateScoreboard();
+            },
+
+            // --- UI Обновления ---
+            updateMessage(text) {
+                this.elements.message.textContent = text;
+            },
+
+            highlightWinningCells(combo, winner) {
+                combo.forEach(index => {
+                    this.elements.board.children[index].classList.add('winner', winner);
                 });
-            });
-        });
+            },
+
+            updateScoreboard() {
+                this.elements.scoreX.textContent = `X: ${this.state.scores.X}`;
+                this.elements.scoreO.textContent = `O: ${this.state.scores.O}`;
+                this.elements.scoreDraw.textContent = `Ничья: ${this.state.scores.draw}`;
+            },
+
+            // --- Логика Бота ---
+            makeBotMove() {
+                this.elements.board.classList.add('locked'); // Блокируем доску пока бот думает
+
+                setTimeout(() => {
+                    let moveIndex;
+                    const board = [...this.state.board];
+
+                    switch (this.state.botDifficulty) {
+                        case 'easy':
+                            moveIndex = this.getEasyBotMove(board);
+                            break;
+                        case 'hard':
+                            moveIndex = this.getHardBotMove(board);
+                            break;
+                        case 'medium':
+                        default:
+                            moveIndex = this.getMediumBotMove(board);
+                    }
+
+                    if (moveIndex !== null) {
+                        this.makeMove(moveIndex);
+                    }
+                    if (!this.state.isGameOver) {
+                       this.elements.board.classList.remove('locked');
+                    }
+                }, 700);
+            },
+
+            getEmptyCells(board) {
+                return board.map((cell, index) => cell === null ? index : null).filter(val => val !== null);
+            },
+
+            getEasyBotMove(board) {
+                const emptyCells = this.getEmptyCells(board);
+                return emptyCells.length > 0 ? emptyCells[Math.floor(Math.random() * emptyCells.length)] : null;
+            },
+
+            getMediumBotMove(board) {
+                // 1. Попытаться выиграть
+                let move = this.findWinningMove(board, this.state.botPlayer);
+                if (move !== null) return move;
+                // 2. Блокировать игрока
+                move = this.findWinningMove(board, this.state.humanPlayer);
+                if (move !== null) return move;
+                // 3. Занять центр
+                if (board[4] === null) return 4;
+                // 4. Занять углы
+                const corners = [0, 2, 6, 8].filter(index => board[index] === null);
+                if (corners.length > 0) return corners[Math.floor(Math.random() * corners.length)];
+                // 5. Любой другой ход
+                return this.getEasyBotMove(board);
+            },
+
+            findWinningMove(board, player) {
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === null) {
+                        board[i] = player;
+                        const winner = this.checkWinnerOnBoard(board);
+                        board[i] = null;
+                        if (winner && winner.winner === player) {
+                            return i;
+                        }
+                    }
+                }
+                return null;
+            },
+
+            getHardBotMove(board) {
+                return this.minimax(board, this.state.botPlayer).index;
+            },
+
+            minimax(newBoard, player) {
+                const emptyCells = this.getEmptyCells(newBoard);
+                const result = this.checkWinnerOnBoard(newBoard);
+
+                if (result) {
+                    if (result.winner === this.state.botPlayer) return { score: 10 };
+                    if (result.winner === this.state.humanPlayer) return { score: -10 };
+                    if (result.winner === 'draw') return { score: 0 };
+                }
+
+                const moves = [];
+                for (let i = 0; i < emptyCells.length; i++) {
+                    const move = {};
+                    move.index = emptyCells[i];
+                    newBoard[emptyCells[i]] = player;
+
+                    if (player === this.state.botPlayer) {
+                        const g = this.minimax(newBoard, this.state.humanPlayer);
+                        move.score = g.score;
+                    } else {
+                        const g = this.minimax(newBoard, this.state.botPlayer);
+                        move.score = g.score;
+                    }
+
+                    newBoard[emptyCells[i]] = null;
+                    moves.push(move);
+                }
+
+                let bestMove;
+                if (player === this.state.botPlayer) {
+                    let bestScore = -10000;
+                    for (let i = 0; i < moves.length; i++) {
+                        if (moves[i].score > bestScore) {
+                            bestScore = moves[i].score;
+                            bestMove = i;
+                        }
+                    }
+                } else {
+                    let bestScore = 10000;
+                    for (let i = 0; i < moves.length; i++) {
+                        if (moves[i].score < bestScore) {
+                            bestScore = moves[i].score;
+                            bestMove = i;
+                        }
+                    }
+                }
+
+                return moves[bestMove];
+            },
+
+            // Вспомогательная функция для AI, проверяющая доску
+            checkWinnerOnBoard(board) {
+                for (const combo of this.WINNING_COMBINATIONS) {
+                    const [a, b, c] = combo;
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        return { winner: board[a], combo };
+                    }
+                }
+                if (!board.includes(null)) return { winner: 'draw' };
+                return null;
+            },
+
+            // --- Настройки ---
+            openSettings() {
+                this.elements.settingsPanel.style.display = 'flex';
+                this.elements.difficultySection.style.display = this.state.mode === 'bot' ? 'block' : 'none';
+
+                // Установка активных кнопок
+                document.querySelectorAll('.toggle-btn[data-symbol]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.symbol === this.state.humanPlayer);
+                });
+                document.querySelectorAll('.toggle-btn[data-level]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.level === this.state.botDifficulty);
+                });
+            },
+
+            closeSettings() {
+                this.elements.settingsPanel.style.display = 'none';
+            },
+
+            saveSettings() {
+                const selectedSymbol = document.querySelector('.toggle-btn[data-symbol].active').dataset.symbol;
+                this.state.humanPlayer = selectedSymbol;
+                this.state.botPlayer = selectedSymbol === 'X' ? 'O' : 'X';
+
+                if (this.state.mode === 'bot') {
+                    const selectedLevel = document.querySelector('.toggle-btn[data-level].active').dataset.level;
+                    this.state.botDifficulty = selectedLevel;
+                }
+
+                this.closeSettings();
+                this.state.scores = { X: 0, O: 0, draw: 0 }; // Сброс счета при смене настроек
+                this.updateScoreboard();
+                this.resetGame();
+            },
+        };
+
+        TicTacToe.init();
+    });
     </script>
 </body>
 </html>
